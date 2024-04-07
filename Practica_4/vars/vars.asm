@@ -240,3 +240,17 @@ SQHEIGHT    DB  ?
 SQWIDTH     DW  ?
 RECQTY      DW  0000
 SPACE      DB  " "
+
+
+;_________________________________________________________Menu de juego_______________________________________________________
+mensaje_menu_juego db 'MENU JUEGO'
+opciones_menu_juego db ' ESC:SALIR            ENTER:SELECCIONAR'
+opt1_menu_juego db '1 VS CPU'
+opt2_menu_juego db '1 VS 1'
+opt3_menu_juego db 'Reportes'
+opt4_menu_juego db 'Regresar'
+
+rotulo1VSC db '1 VS CPU',0ah,0dh,'$'
+rotulo1VS1 db '1 VS 1',0ah,0dh,'$'
+rotuloReportes db 'Reportes',0ah,0dh,'$'
+rotuloRegresar db 'Regresar',0ah,0dh,'$'

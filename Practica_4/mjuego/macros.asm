@@ -68,14 +68,14 @@ mDivLine macro line, color
     MOV PIXLINE, line
     MOV PIXCOL, 0
 
-    CALL CALCPIXELLOC   ;SALIDA EN AX
+    CALL CALCPIXELLOCJUEGO   ;SALIDA EN AX
     
     MOV BH, 00
     MOV BL, color
     MOV SQCOLOR, BX
     MOV SQHEIGHT, 4
     MOV SQWIDTH, 140
-    CALL DRAWSQUARE
+    CALL DRAWSQUAREJUEGO
 
     POP AX
 endm
@@ -90,7 +90,7 @@ mPrintTextIntoVideo MACRO row, column, text, chars, color
     ;DL         Column position where string is to be written
     ;ES:BP      Pointer to string to write
     mPushRegisters
-    CALL PMOVDATATOES
+    CALL PMOVDATATOESJUEGO
 
     MOV AH, 13
     MOV AL, 0
@@ -102,7 +102,7 @@ mPrintTextIntoVideo MACRO row, column, text, chars, color
     MOV BX, color
     INT 10
 
-    CALL PMOVESTOVIDEOMODE
+    CALL PMOVESTOVIDEOMODEJUEGO
     mPopRegisters
 ENDM
 
@@ -149,10 +149,10 @@ mKeysSelectMenuGrafico macro
         mPrintTextIntoVideo MARKLINE, MARKCOLUMN, SPACE, 1, 00
         INC SI
         INC ACTLINE
-        CALL PREVIEWNUMBERMARKERDOWN
+        CALL PREVIEWNUMBERMARKERDOWNJUEGO
         INC MARKLINE
         MOV FONTCOLOR, 0A
-        CALL PMARKVALUE
+        CALL PMARKVALUEJUEGO
         JMP until_select_option
     up_opt:
         CMP SI, 0001
@@ -161,95 +161,12 @@ mKeysSelectMenuGrafico macro
         mPrintTextIntoVideo MARKLINE, MARKCOLUMN, SPACE, 1, 00
         DEC SI
         DEC ACTLINE
-        CALL PREVIEWNUMBERMARKERUP
-        DEC MARKLINE
-        MOV FONTCOLOR, 0A
-        CALL PMARKVALUE
-        JMP until_select_option
-    select_option:
-        CMP ACTLINE, 02
-        JE opt_inicio_juego
-        CMP ACTLINE, 03
-        JE opt_animacion
-        CMP ACTLINE, 04
-        JE opt_datos
-        CMP ACTLINE, 05
-        JE exit
-        JMP until_select_option
-    opt_inicio_juego:
-        mTextMode
-        CALL PINICIOJUEGO
-        CALL PPRINTMENUGRAFICO
-        CALL PMARKVALUE
-        JMP until_select_option
-    opt_datos:
-        mTextMode
-        mCleanScreen
-        mPrint datosGenerales
-        mPrint newLine
-        mPrint mesaje_presionar_enter_continuar
-        pauseUntilEnter
-        CALL PPRINTMENUGRAFICO
-        CALL PMARKVALUE
-        JMP until_select_option
-
-
-    opt_animacion:
-        mTextMode
-        mCleanScreen
-        mPrint rotuloAnimacion
-        mPrint newLine
-        mPrint mesaje_presionar_enter_continuar
-        pauseUntilEnter
-        CALL PPRINTMENUGRAFICO
-        CALL PMARKVALUE
-        JMP until_select_option
-
-    exit:
-        POP AX
-endm
-
-
-mKeysSelectMenuGraficoJuego macro
-    LOCAL until_select_option2, exit2, down_opt2, up_opt2, select_option2
-    PUSH AX
-
-    until_select_option2:
-        MOV AH,08h
-        INT 21
-        CMP AL, 000DH
-        JE select_option2
-        CMP AL, 48
-        JE up_opt2
-        CMP AL, 50
-        JE down_opt2
-        CMP AL, 1BH
-        JE exit2
-        JMP until_select_option2
-    down_opt2:
-        CMP SI, RECQTY
-        JE until_select_option2
-
-        mPrintTextIntoVideo MARKLINE, MARKCOLUMN, SPACE, 1, 00
-        INC SI
-        INC ACTLINE
-        CALL PREVIEWNUMBERMARKERDOWNJUEGO
-        INC MARKLINE
-        MOV FONTCOLOR, 0A
-        CALL PMARKVALUEJUEGO
-        JMP until_select_option2
-    up_opt2:
-        CMP SI, 0001
-        JE until_select_option2
-        mPrintTextIntoVideo MARKLINE, MARKCOLUMN, SPACE, 1, 00
-        DEC SI
-        DEC ACTLINE
         CALL PREVIEWNUMBERMARKERUPJUEGO
         DEC MARKLINE
         MOV FONTCOLOR, 0A
-        CALL PMARKVALUEJUEGO
-        JMP until_select_option2
-    select_option2:
+        CALL PMARKVALUE
+        JMP PMARKVALUEJUEGO
+    select_option:
         CMP ACTLINE, 02
         JE opt_uno_vs_cpu
         CMP ACTLINE, 03
@@ -258,19 +175,25 @@ mKeysSelectMenuGraficoJuego macro
         JE opt_reportes
         CMP ACTLINE, 05
         JE opt_regresar
-        JMP until_select_option2
+        JMP until_select_option
     opt_uno_vs_cpu:
         mTextMode
         CALL PINICIOJUEGOMENU
         CALL PPRINTMENUGRAFICO
         CALL PMARKVALUE
-        JMP until_select_option2      
+        JMP until_select_option
+
+      
     opt_uno_vs_uno:
         mTextMode
-        CALL PJUGOUNOVUNO
-        CALL PPRINTMENUGRAFICO
-        CALL PMARKVALUE
-        JMP until_select_option2      
+        mCleanScreen
+        mPrint rotulo1VS1
+        mPrint newLine
+        mPrint mesaje_presionar_enter_continuar
+        pauseUntilEnter
+        CALL PPRINTMENUGRAFICOJUEGO
+        CALL PMARKVALUEJUEGO
+        JMP until_select_option
     opt_reportes:
         mTextMode
         mCleanScreen
@@ -280,12 +203,9 @@ mKeysSelectMenuGraficoJuego macro
         pauseUntilEnter
         CALL PPRINTMENUGRAFICOJUEGO
         CALL PMARKVALUEJUEGO
-        JMP until_select_option2
+        JMP until_select_option
     opt_regresar:
-        
+        JMP until_select_option
         JMP inicio
-
-    exit2:
-        POP AX
         
 endm

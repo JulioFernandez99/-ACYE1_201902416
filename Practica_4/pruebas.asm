@@ -1,1 +1,1 @@
-Informacion
+Regresar
