@@ -4,6 +4,595 @@ PrintCadena MACRO cadena
     INT 21h
 ENDM
 
+
+
+
+;---------------------------------------------------------
+
+LimpiarConsola MACRO
+    MOV AX,03h              ;03H es el codigo de la funcion que limpia la pantalla
+    INT 10h                 ;10h es la interrupcion para el video
+ENDM
+
+LimpiarComando MACRO
+    LOCAL LIMPIAR
+    MOV SI, 3  ; Comenzamos desde el tercer carácter de la cadena comando
+    LIMPIAR:
+        MOV comando[SI], 32  ; Limpia con espacios en blanco
+        INC SI
+        CMP SI, 10
+        JNE LIMPIAR
+ENDM
+
+prom MACRO cadena2
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+
+    mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
+    mov di, offset cadena2       ; Puntero a la segunda cadena
+
+    COMPARAR_LOOP:
+        mov al, [si]         ; Carga el próximo carácter de la primera cadena en AL
+        mov bl, [di]         ; Carga el próximo carácter de la segunda cadena en BL
+        cmp al, bl           ; Compara los caracteres
+        jne NO_IGUALES       ; Si son diferentes, salta a NO_IGUALES
+
+        ; Si llegamos aquí, los caracteres son iguales
+        ; Comprobamos si hemos llegado al final de alguna de las cadenas
+        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        je SON_IGUALES       ; Si sí, las cadenas son iguales
+        inc si               ; Avanza al siguiente carácter de cadena1
+        inc di               ; Avanza al siguiente carácter de cadena2
+        jmp COMPARAR_LOOP    ; Repite el bucle
+
+    NO_IGUALES:
+        ; Si llegamos aquí, encontramos caracteres diferentes
+        ; Manejar la situación de cadenas no iguales aquí
+        ; Por ejemplo, establecer una bandera de no iguales y salir del bucle
+        
+        ;PrintCadena bandera2
+        jmp FIN_COMPARACION
+
+    SON_IGUALES:
+        ; Si llegamos aquí, las cadenas son iguales
+        ; Manejar la situación de cadenas iguales aquí
+        ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        MOV match, 1
+        ;PrintCadena prc1
+        Promedio
+        MOV base, 10000
+
+        ;PrintCadena bandera1
+
+    FIN_COMPARACION:
+ENDM
+
+medianaC MACRO cadena2
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
+    mov di, offset cadena2       ; Puntero a la segunda cadena
+
+    COMPARAR_LOOP:
+        mov al, [si]         ; Carga el próximo carácter de la primera cadena en AL
+        mov bl, [di]         ; Carga el próximo carácter de la segunda cadena en BL
+        cmp al, bl           ; Compara los caracteres
+        jne NO_IGUALES       ; Si son diferentes, salta a NO_IGUALES
+
+        ; Si llegamos aquí, los caracteres son iguales
+        ; Comprobamos si hemos llegado al final de alguna de las cadenas
+        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        je SON_IGUALES       ; Si sí, las cadenas son iguales
+        inc si               ; Avanza al siguiente carácter de cadena1
+        inc di               ; Avanza al siguiente carácter de cadena2
+        jmp COMPARAR_LOOP    ; Repite el bucle
+
+    NO_IGUALES:
+        ; Si llegamos aquí, encontramos caracteres diferentes
+        ; Manejar la situación de cadenas no iguales aquí
+        ; Por ejemplo, establecer una bandera de no iguales y salir del bucle
+        
+        ;PrintCadena bandera2
+        jmp FIN_COMPARACION
+
+    SON_IGUALES:
+        ; Si llegamos aquí, las cadenas son iguales
+        ; Manejar la situación de cadenas iguales aquí
+        ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        MOV match, 1
+        ;PrintCadena prc2
+        Mediana
+        MOV base, 10000
+
+        ;PrintCadena bandera1
+
+    FIN_COMPARACION:
+ENDM
+
+modaC MACRO cadena2
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
+    mov di, offset cadena2       ; Puntero a la segunda cadena
+
+    COMPARAR_LOOP:
+        mov al, [si]         ; Carga el próximo carácter de la primera cadena en AL
+        mov bl, [di]         ; Carga el próximo carácter de la segunda cadena en BL
+        cmp al, bl           ; Compara los caracteres
+        jne NO_IGUALES       ; Si son diferentes, salta a NO_IGUALES
+
+        ; Si llegamos aquí, los caracteres son iguales
+        ; Comprobamos si hemos llegado al final de alguna de las cadenas
+        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        je SON_IGUALES       ; Si sí, las cadenas son iguales
+        inc si               ; Avanza al siguiente carácter de cadena1
+        inc di               ; Avanza al siguiente carácter de cadena2
+        jmp COMPARAR_LOOP    ; Repite el bucle
+
+    NO_IGUALES:
+        ; Si llegamos aquí, encontramos caracteres diferentes
+        ; Manejar la situación de cadenas no iguales aquí
+        ; Por ejemplo, establecer una bandera de no iguales y salir del bucle
+        
+        ;PrintCadena bandera2
+        jmp FIN_COMPARACION
+
+    SON_IGUALES:
+        ; Si llegamos aquí, las cadenas son iguales
+        ; Manejar la situación de cadenas iguales aquí
+        ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        MOV match, 1
+        ;PrintCadena prc3
+        Moda
+        MOV base, 10000
+
+        ;PrintCadena bandera1
+
+    FIN_COMPARACION:
+ENDM
+
+max MACRO cadena2
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
+    mov di, offset cadena2       ; Puntero a la segunda cadena
+
+    COMPARAR_LOOP:
+        mov al, [si]         ; Carga el próximo carácter de la primera cadena en AL
+        mov bl, [di]         ; Carga el próximo carácter de la segunda cadena en BL
+        cmp al, bl           ; Compara los caracteres
+        jne NO_IGUALES       ; Si son diferentes, salta a NO_IGUALES
+
+        ; Si llegamos aquí, los caracteres son iguales
+        ; Comprobamos si hemos llegado al final de alguna de las cadenas
+        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        je SON_IGUALES       ; Si sí, las cadenas son iguales
+        inc si               ; Avanza al siguiente carácter de cadena1
+        inc di               ; Avanza al siguiente carácter de cadena2
+        jmp COMPARAR_LOOP    ; Repite el bucle
+
+    NO_IGUALES:
+        ; Si llegamos aquí, encontramos caracteres diferentes
+        ; Manejar la situación de cadenas no iguales aquí
+        ; Por ejemplo, establecer una bandera de no iguales y salir del bucle
+        
+        ;PrintCadena bandera2
+        jmp FIN_COMPARACION
+
+    SON_IGUALES:
+        ; Si llegamos aquí, las cadenas son iguales
+        ; Manejar la situación de cadenas iguales aquí
+        ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        MOV match, 1
+        ;PrintCadena prc4
+        Maximo
+        MOV base, 10000
+
+        ;PrintCadena bandera1
+
+    FIN_COMPARACION:
+ENDM
+
+min MACRO cadena2
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
+    mov di, offset cadena2       ; Puntero a la segunda cadena
+
+    COMPARAR_LOOP:
+        mov al, [si]         ; Carga el próximo carácter de la primera cadena en AL
+        mov bl, [di]         ; Carga el próximo carácter de la segunda cadena en BL
+        cmp al, bl           ; Compara los caracteres
+        jne NO_IGUALES       ; Si son diferentes, salta a NO_IGUALES
+
+        ; Si llegamos aquí, los caracteres son iguales
+        ; Comprobamos si hemos llegado al final de alguna de las cadenas
+        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        je SON_IGUALES       ; Si sí, las cadenas son iguales
+        inc si               ; Avanza al siguiente carácter de cadena1
+        inc di               ; Avanza al siguiente carácter de cadena2
+        jmp COMPARAR_LOOP    ; Repite el bucle
+
+    NO_IGUALES:
+        ; Si llegamos aquí, encontramos caracteres diferentes
+        ; Manejar la situación de cadenas no iguales aquí
+        ; Por ejemplo, establecer una bandera de no iguales y salir del bucle
+        
+        ;PrintCadena bandera2
+        jmp FIN_COMPARACION
+
+    SON_IGUALES:
+        ; Si llegamos aquí, las cadenas son iguales
+        ; Manejar la situación de cadenas iguales aquí
+        ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        MOV match, 1
+        ;PrintCadena prc5
+        Minimo
+        MOV base, 10000
+
+        ;PrintCadena bandera1
+
+    FIN_COMPARACION:
+ENDM
+
+contador MACRO cadena2
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
+    mov di, offset cadena2       ; Puntero a la segunda cadena
+
+    COMPARAR_LOOP:
+        mov al, [si]         ; Carga el próximo carácter de la primera cadena en AL
+        mov bl, [di]         ; Carga el próximo carácter de la segunda cadena en BL
+        cmp al, bl           ; Compara los caracteres
+        jne NO_IGUALES       ; Si son diferentes, salta a NO_IGUALES
+
+        ; Si llegamos aquí, los caracteres son iguales
+        ; Comprobamos si hemos llegado al final de alguna de las cadenas
+        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        je SON_IGUALES       ; Si sí, las cadenas son iguales
+        inc si               ; Avanza al siguiente carácter de cadena1
+        inc di               ; Avanza al siguiente carácter de cadena2
+        jmp COMPARAR_LOOP    ; Repite el bucle
+
+    NO_IGUALES:
+        ; Si llegamos aquí, encontramos caracteres diferentes
+        ; Manejar la situación de cadenas no iguales aquí
+        ; Por ejemplo, establecer una bandera de no iguales y salir del bucle
+        
+        ;PrintCadena bandera2
+        jmp FIN_COMPARACION
+
+    SON_IGUALES:
+        ; Si llegamos aquí, las cadenas son iguales
+        ; Manejar la situación de cadenas iguales aquí
+        ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        MOV match, 1
+        ;PrintCadena prc6
+        ContadorDatos
+        MOV base, 10000
+
+        ;PrintCadena bandera1
+
+    FIN_COMPARACION:
+ENDM
+
+graf_barra_asc MACRO cadena2
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
+    mov di, offset cadena2       ; Puntero a la segunda cadena
+
+    COMPARAR_LOOP:
+        mov al, [si]         ; Carga el próximo carácter de la primera cadena en AL
+        mov bl, [di]         ; Carga el próximo carácter de la segunda cadena en BL
+        cmp al, bl           ; Compara los caracteres
+        jne NO_IGUALES       ; Si son diferentes, salta a NO_IGUALES
+
+        ; Si llegamos aquí, los caracteres son iguales
+        ; Comprobamos si hemos llegado al final de alguna de las cadenas
+        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        je SON_IGUALES       ; Si sí, las cadenas son iguales
+        inc si               ; Avanza al siguiente carácter de cadena1
+        inc di               ; Avanza al siguiente carácter de cadena2
+        jmp COMPARAR_LOOP    ; Repite el bucle
+
+    NO_IGUALES:
+        ; Si llegamos aquí, encontramos caracteres diferentes
+        ; Manejar la situación de cadenas no iguales aquí
+        ; Por ejemplo, establecer una bandera de no iguales y salir del bucle
+        
+        ;PrintCadena bandera2
+        jmp FIN_COMPARACION
+
+    SON_IGUALES:
+        ; Si llegamos aquí, las cadenas son iguales
+        ; Manejar la situación de cadenas iguales aquí
+        ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        MOV match, 1
+        PrintCadena prc7
+
+        ;PrintCadena bandera1
+
+    FIN_COMPARACION:
+ENDM
+
+graf_barra_desc MACRO cadena2
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
+    mov di, offset cadena2       ; Puntero a la segunda cadena
+
+    COMPARAR_LOOP:
+        mov al, [si]         ; Carga el próximo carácter de la primera cadena en AL
+        mov bl, [di]         ; Carga el próximo carácter de la segunda cadena en BL
+        cmp al, bl           ; Compara los caracteres
+        jne NO_IGUALES       ; Si son diferentes, salta a NO_IGUALES
+
+        ; Si llegamos aquí, los caracteres son iguales
+        ; Comprobamos si hemos llegado al final de alguna de las cadenas
+        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        je SON_IGUALES       ; Si sí, las cadenas son iguales
+        inc si               ; Avanza al siguiente carácter de cadena1
+        inc di               ; Avanza al siguiente carácter de cadena2
+        jmp COMPARAR_LOOP    ; Repite el bucle
+
+    NO_IGUALES:
+        ; Si llegamos aquí, encontramos caracteres diferentes
+        ; Manejar la situación de cadenas no iguales aquí
+        ; Por ejemplo, establecer una bandera de no iguales y salir del bucle
+        
+        ;PrintCadena bandera2
+        jmp FIN_COMPARACION
+
+    SON_IGUALES:
+        ; Si llegamos aquí, las cadenas son iguales
+        ; Manejar la situación de cadenas iguales aquí
+        ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        MOV match, 1
+        PrintCadena prc8
+
+        ;PrintCadena bandera1
+
+    FIN_COMPARACION:
+ENDM
+
+graf_linea MACRO cadena2
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
+    mov di, offset cadena2       ; Puntero a la segunda cadena
+
+    COMPARAR_LOOP:
+        mov al, [si]         ; Carga el próximo carácter de la primera cadena en AL
+        mov bl, [di]         ; Carga el próximo carácter de la segunda cadena en BL
+        cmp al, bl           ; Compara los caracteres
+        jne NO_IGUALES       ; Si son diferentes, salta a NO_IGUALES
+
+        ; Si llegamos aquí, los caracteres son iguales
+        ; Comprobamos si hemos llegado al final de alguna de las cadenas
+        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        je SON_IGUALES       ; Si sí, las cadenas son iguales
+        inc si               ; Avanza al siguiente carácter de cadena1
+        inc di               ; Avanza al siguiente carácter de cadena2
+        jmp COMPARAR_LOOP    ; Repite el bucle
+
+    NO_IGUALES:
+        ; Si llegamos aquí, encontramos caracteres diferentes
+        ; Manejar la situación de cadenas no iguales aquí
+        ; Por ejemplo, establecer una bandera de no iguales y salir del bucle
+        
+        ;PrintCadena bandera2
+        jmp FIN_COMPARACION
+
+    SON_IGUALES:
+        ; Si llegamos aquí, las cadenas son iguales
+        ; Manejar la situación de cadenas iguales aquí
+        ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        MOV match, 1
+        PrintCadena prc9
+
+        ;PrintCadena bandera1
+
+    FIN_COMPARACION:
+ENDM
+
+abrir MACRO cadena2
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
+    mov di, offset cadena2       ; Puntero a la segunda cadena
+
+    COMPARAR_LOOP:
+        mov al, [si]         ; Carga el próximo carácter de la primera cadena en AL
+        mov bl, [di]         ; Carga el próximo carácter de la segunda cadena en BL
+        cmp al, bl           ; Compara los caracteres
+        jne NO_IGUALES       ; Si son diferentes, salta a NO_IGUALES
+
+        ; Si llegamos aquí, los caracteres son iguales
+        ; Comprobamos si hemos llegado al final de alguna de las cadenas
+        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        je SON_IGUALES       ; Si sí, las cadenas son iguales
+        inc si               ; Avanza al siguiente carácter de cadena1
+        inc di               ; Avanza al siguiente carácter de cadena2
+        jmp COMPARAR_LOOP    ; Repite el bucle
+
+    NO_IGUALES:
+        ; Si llegamos aquí, encontramos caracteres diferentes
+        ; Manejar la situación de cadenas no iguales aquí
+        ; Por ejemplo, establecer una bandera de no iguales y salir del bucle
+        
+        ;PrintCadena bandera2
+        jmp FIN_COMPARACION
+
+    SON_IGUALES:
+        ; Si llegamos aquí, las cadenas son iguales
+        ; Manejar la situación de cadenas iguales aquí
+        ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        MOV match, 1
+        PrintCadena prc10
+
+        ;PrintCadena bandera1
+
+    FIN_COMPARACION:
+ENDM
+
+limpiar MACRO cadena2
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
+    mov di, offset cadena2       ; Puntero a la segunda cadena
+
+    COMPARAR_LOOP:
+        mov al, [si]         ; Carga el próximo carácter de la primera cadena en AL
+        mov bl, [di]         ; Carga el próximo carácter de la segunda cadena en BL
+        cmp al, bl           ; Compara los caracteres
+        jne NO_IGUALES       ; Si son diferentes, salta a NO_IGUALES
+
+        ; Si llegamos aquí, los caracteres son iguales
+        ; Comprobamos si hemos llegado al final de alguna de las cadenas
+        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        je SON_IGUALES       ; Si sí, las cadenas son iguales
+        inc si               ; Avanza al siguiente carácter de cadena1
+        inc di               ; Avanza al siguiente carácter de cadena2
+        jmp COMPARAR_LOOP    ; Repite el bucle
+
+    NO_IGUALES:
+        ; Si llegamos aquí, encontramos caracteres diferentes
+        ; Manejar la situación de cadenas no iguales aquí
+        ; Por ejemplo, establecer una bandera de no iguales y salir del bucle
+        
+        ;PrintCadena bandera2
+        jmp FIN_COMPARACION
+
+    SON_IGUALES:
+        ; Si llegamos aquí, las cadenas son iguales
+        ; Manejar la situación de cadenas iguales aquí
+        ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        MOV match, 1
+        PrintCadena prc11
+        LimpiarConsola
+
+        ;PrintCadena bandera1
+
+    FIN_COMPARACION:
+ENDM
+
+reporte MACRO cadena2
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
+    mov di, offset cadena2       ; Puntero a la segunda cadena
+
+    COMPARAR_LOOP:
+        mov al, [si]         ; Carga el próximo carácter de la primera cadena en AL
+        mov bl, [di]         ; Carga el próximo carácter de la segunda cadena en BL
+        cmp al, bl           ; Compara los caracteres
+        jne NO_IGUALES       ; Si son diferentes, salta a NO_IGUALES
+
+        ; Si llegamos aquí, los caracteres son iguales
+        ; Comprobamos si hemos llegado al final de alguna de las cadenas
+        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        je SON_IGUALES       ; Si sí, las cadenas son iguales
+        inc si               ; Avanza al siguiente carácter de cadena1
+        inc di               ; Avanza al siguiente carácter de cadena2
+        jmp COMPARAR_LOOP    ; Repite el bucle
+
+    NO_IGUALES:
+        ; Si llegamos aquí, encontramos caracteres diferentes
+        ; Manejar la situación de cadenas no iguales aquí
+        ; Por ejemplo, establecer una bandera de no iguales y salir del bucle
+        
+        ;PrintCadena bandera2
+        jmp FIN_COMPARACION
+
+    SON_IGUALES:
+        ; Si llegamos aquí, las cadenas son iguales
+        ; Manejar la situación de cadenas iguales aquí
+        ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        MOV match, 1
+        PrintCadena prc12
+
+        ;PrintCadena bandera1
+
+    FIN_COMPARACION:
+ENDM
+
+info MACRO cadena2
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
+    mov di, offset cadena2       ; Puntero a la segunda cadena
+
+    COMPARAR_LOOP:
+        mov al, [si]         ; Carga el próximo carácter de la primera cadena en AL
+        mov bl, [di]         ; Carga el próximo carácter de la segunda cadena en BL
+        cmp al, bl           ; Compara los caracteres
+        jne NO_IGUALES       ; Si son diferentes, salta a NO_IGUALES
+
+        ; Si llegamos aquí, los caracteres son iguales
+        ; Comprobamos si hemos llegado al final de alguna de las cadenas
+        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        je SON_IGUALES       ; Si sí, las cadenas son iguales
+        inc si               ; Avanza al siguiente carácter de cadena1
+        inc di               ; Avanza al siguiente carácter de cadena2
+        jmp COMPARAR_LOOP    ; Repite el bucle
+
+    NO_IGUALES:
+        ; Si llegamos aquí, encontramos caracteres diferentes
+        ; Manejar la situación de cadenas no iguales aquí
+        ; Por ejemplo, establecer una bandera de no iguales y salir del bucle
+        
+        ;PrintCadena bandera2
+        jmp FIN_COMPARACION
+
+    SON_IGUALES:
+        ; Si llegamos aquí, las cadenas son iguales
+        ; Manejar la situación de cadenas iguales aquí
+        ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        MOV match, 1
+        ;PrintCadena prc13
+        PrintCadena salto
+        PrintCadena encabezado
+
+        ;PrintCadena bandera1
+
+    FIN_COMPARACION:
+ENDM
+
+salir MACRO cadena2
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
+    mov di, offset cadena2       ; Puntero a la segunda cadena
+
+    COMPARAR_LOOP:
+        mov al, [si]         ; Carga el próximo carácter de la primera cadena en AL
+        mov bl, [di]         ; Carga el próximo carácter de la segunda cadena en BL
+        cmp al, bl           ; Compara los caracteres
+        jne NO_IGUALES       ; Si son diferentes, salta a NO_IGUALES
+
+        ; Si llegamos aquí, los caracteres son iguales
+        ; Comprobamos si hemos llegado al final de alguna de las cadenas
+        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        je SON_IGUALES       ; Si sí, las cadenas son iguales
+        inc si               ; Avanza al siguiente carácter de cadena1
+        inc di               ; Avanza al siguiente carácter de cadena2
+        jmp COMPARAR_LOOP    ; Repite el bucle
+
+    NO_IGUALES:
+        ; Si llegamos aquí, encontramos caracteres diferentes
+        ; Manejar la situación de cadenas no iguales aquí
+        ; Por ejemplo, establecer una bandera de no iguales y salir del bucle
+        
+        ;PrintCadena bandera2
+        jmp FIN_COMPARACION
+
+    SON_IGUALES:
+        ; Si llegamos aquí, las cadenas son iguales
+        ; Manejar la situación de cadenas iguales aquí
+        ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        LimpiarConsola
+        MOV match, 1
+        PrintCadena prc14
+        JMP Exit
+        
+
+        ;PrintCadena bandera1
+
+    FIN_COMPARACION:
+ENDM
+
+
+;---------------------------------------------------------
+
+
 OpenFile MACRO
     LOCAL ErrorToOpen, ExitOpenFile
     MOV AL, 2
@@ -23,6 +612,7 @@ OpenFile MACRO
         ADD errorCode, 48
 
         PrintCadena salto
+        MOV warningOpen, 1
         PrintCadena errorOpenFile
 
         MOV AH, 02h
@@ -675,6 +1265,32 @@ PrintTablaFrecuencias MACRO
     ExitPrintTabla:
 ENDM
 
+IngresarComando MACRO comand
+    MOV AH, 09h         ; Función de impresión de cadena
+    LEA DX, mensajeComando     ; Carga la dirección del mensaje
+    INT 21h             ; Llama a la interrupción del DOS
+
+    MOV AH, 0Ah         ; Función de lectura de cadena
+    LEA DX, comand      ; Carga la dirección de la cadena
+    INT 21h             ; Llama a la interrupción del DOS
+    
+ENDM
+
+PedirComando MACRO buffer
+    XOR DX, DX
+    XOR BX, BX
+
+    LEA DX, buffer
+    MOV AH, 0Ah
+    INT 21h
+
+    MOV SI, 2
+    MOV BL, comando[1]
+    ADD SI, BX
+    MOV comando[SI], '$'
+ENDM
+
+
 ; * CODIGO DE EJEMPLO PARA LA LECTURA DE UN CSV
 .MODEL small
 .STACK 100h
@@ -713,56 +1329,259 @@ ENDM
     entero              dw ?
     decimal             dw ?
     cantDecimal         db 0
+
+    encabezado db "ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1 A",10,13,"PRIMER SEMESTRE 2024",10,13,"Julio Alfredo Fernandez Rodriguez",10,13,"201902416",10,13,"Proyecto 2 Assembler",10,13,"$"
+
+    match db 0
+
+    comand1             db "prom", "$"
+    prc1                db "Procesando promedio.....", "$"
+
+    comand2             db "mediana", "$"
+    prc2                db "Procesando mediana.....", "$"
+
+    comand3             db "moda", "$"
+    prc3                db "Procesando moda.....", "$"
+    
+    comand4             db "max", "$"
+    prc4                db "Procesando max.....", "$"
+    
+    comand5             db "min", "$"
+    prc5                db "Procesando min.....", "$"
+
+    comand6             db "contador", "$"
+    prc6                db "Procesando contador.....", "$"
+
+    comand7             db "graf_barra_asc", "$"
+    prc7                db "Procesando graf_barra_asc.....", "$"
+
+    comand8             db "graf_barra_desc", "$"
+    prc8                db "Procesando graf_barra_desc.....", "$"
+
+    comand9             db "graf_linea", "$"
+    prc9                db "Procesando graf_linea.....", "$"
+
+    comand10             db "abrir_nombreArchivo.csv", "$"
+    prc10                db "Procesando abrir_nombreArchivo.csv.....", "$"
+
+    comand11             db "limpiar", "$"
+    prc11                db "Procesando limpiar.....", "$"
+
+    comand12             db "reporte", "$"
+    prc12                db "Procesando reporte.....", "$"
+
+    comand13             db "info", "$"
+    prc13                db "Procesando info.....", "$"
+
+    comand14             db "salir", "$"
+    prc14                db "Procesando salir.....", "$"
+
+    warning             db "Comando no valido", "$"
+    warningOpen         db 0
+
+    mensajeComando      db "Ingrese un comando:", "$"
+    comando             db 10 dup(32) ,"$"
+
 .CODE
     MOV AX, @data
     MOV DS, AX
 
     Main PROC
+    Open:
+        MOV warningOpen, 0
+        LimpiarConsola
         PrintCadena msgToRequestFile
         PedirCadena filename
 
         ; * Extraer Informacion Del CSV
         OpenFile
+        CMP warningOpen,1
+        JE Open
+        
         GetSizeFile handlerFile
         ReadCSV handlerFile, numCSV
         CloseFile handlerFile
 
-        ; * Ordenar Datos - Ordenamiento Burbuja
+        ;  Ordenar Datos - Ordenamiento Burbuja
         OrderData
+        LimpiarConsola
 
-        ; * Promedio
-        Promedio
-        MOV base, 10000
+        PrintCadena exitOpenFileMsg
 
-        ; * Maximo
-        Maximo
-        MOV base, 10000
 
-        ; * Minimo
-        Minimo
-        MOV base, 10000
+        init:
+            MOV match, 0
+            PrintCadena salto
+            PrintCadena mensajeComando
+            PedirComando comando
+            PrintCadena salto
+            
+            prom comand1
 
-        ; * Mediana
-        Mediana
-        MOV base, 10000
+            CMP match, 1
+            JNE no_prom
 
-        ; * Contador De Datos
-        ContadorDatos
-        MOV base, 10000
+            LimpiarComando
+            JMP init
 
-        ; * Construir Tabla De Frecuencias
-        BuildTablaFrecuencias
-        OrderFrecuencies
-        MOV base, 10000
+        no_prom:
+            medianaC comand2
+            
+            CMP match, 1
+            JNE no_mediana
 
-        ; * Moda
-        Moda
-        MOV base, 10000
+            LimpiarComando
+            JMP init
 
-        ; * Print Tabla Frecuencias
-        PrintTablaFrecuencias
+        no_mediana:
+            modaC comand3
+
+            CMP match, 1
+            JNE no_moda
+
+            LimpiarComando
+            JMP init
+
+        no_moda:
+            max comand4
+
+            CMP match, 1
+            JNE no_max
+
+            LimpiarComando
+            JMP init
+
+        no_max:
+            min comand5
+
+            CMP match, 1
+            JNE no_min
+
+            LimpiarComando
+            JMP init
+
+        no_min:
+            contador comand6
+
+            CMP match, 1
+            JNE no_contador
+
+            LimpiarComando
+            JMP init
         
-        MOV AX, 4C00h
-        INT 21h
+        no_contador:
+            graf_barra_asc comand7
+
+            CMP match, 1
+            JNE no_graf_barra_asc
+
+            LimpiarComando
+            JMP init
+
+        no_graf_barra_asc:
+            graf_barra_desc comand8
+
+            CMP match, 1
+            JNE no_graf_barra_desc
+
+            LimpiarComando
+            JMP init
+        
+        no_graf_barra_desc:
+            graf_linea comand9
+
+            CMP match, 1
+            JNE no_graf_linea
+
+            LimpiarComando
+            JMP init
+        
+        no_graf_linea:
+            abrir comand10
+
+            CMP match, 1
+            JNE no_abrir
+
+            LimpiarComando
+            JMP init
+        
+        no_abrir:
+            limpiar comand11
+
+            CMP match, 1
+            JNE no_limpiar
+
+            LimpiarComando
+            JMP init
+
+        no_limpiar:
+            reporte comand12
+
+            CMP match, 1
+            JNE no_reporte
+
+            LimpiarComando
+            JMP init
+
+        no_reporte:
+            info comand13
+
+            CMP match, 1
+            JNE no_info
+
+            LimpiarComando
+            JMP init
+        
+        no_info:
+            salir comand14
+
+            CMP match, 1
+            JNE error
+
+
+            LimpiarComando
+            JMP init
+
+        error:
+            PrintCadena salto
+            PrintCadena warning
+            LimpiarComando
+            JMP init
+
+        Exit:
+            MOV AX, 4C00h
+            INT 21h
+
+
+
+        ; ; * Maximo
+        ; Maximo
+        ; MOV base, 10000
+
+        ; ; * Minimo
+        ; Minimo
+        ; MOV base, 10000
+
+        ; ; * Mediana
+        ; Mediana
+        ; MOV base, 10000
+
+        ; ; * Contador De Datos
+        ; ContadorDatos
+        ; MOV base, 10000
+
+        ; ; * Construir Tabla De Frecuencias
+        ; BuildTablaFrecuencias
+        ; OrderFrecuencies
+        ; MOV base, 10000
+
+        ; ; * Moda
+        ; Moda
+        ; MOV base, 10000
+
+        ; ; * Print Tabla Frecuencias
+        ; PrintTablaFrecuencias
+        
+
     Main ENDP
 END
