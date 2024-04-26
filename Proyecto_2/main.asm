@@ -4,9 +4,6 @@ PrintCadena MACRO cadena
     INT 21h
 ENDM
 
-
-
-
 ;---------------------------------------------------------
 
 LimpiarConsola MACRO
@@ -389,7 +386,7 @@ graf_linea MACRO cadena2
 ENDM
 
 abrir MACRO cadena2
-    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION, CopiaFileName
     mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
     mov di, offset cadena2       ; Puntero a la segunda cadena
 
@@ -401,7 +398,7 @@ abrir MACRO cadena2
 
         ; Si llegamos aquí, los caracteres son iguales
         ; Comprobamos si hemos llegado al final de alguna de las cadenas
-        cmp al, '$'            ; Si al es 0, hemos llegado al final de cadena1
+        cmp al, '_'            ; Si al es 0, hemos llegado al final de cadena1
         je SON_IGUALES       ; Si sí, las cadenas son iguales
         inc si               ; Avanza al siguiente carácter de cadena1
         inc di               ; Avanza al siguiente carácter de cadena2
@@ -414,13 +411,30 @@ abrir MACRO cadena2
         
         ;PrintCadena bandera2
         jmp FIN_COMPARACION
-
+    
     SON_IGUALES:
         ; Si llegamos aquí, las cadenas son iguales
         ; Manejar la situación de cadenas iguales aquí
         ; Por ejemplo, establecer una bandera de iguales y salir del bucle
+        clearFile
+
+        mov si, offset comando + 6  ; Puntero a la primera cadena, comenzando desde el tercer byte
+        mov di, offset filename      ; Puntero a la segunda cadena
+
+        CopiaFileName:
+            mov al, [si]   ; Carga el próximo carácter de la primera cadena en AL
+            mov [di], al   ; Copia el carácter a la segunda cadena
+            inc si         ; Avanza al siguiente carácter de cadena1
+            inc di         ; Avanza al siguiente carácter de cadena2
+            cmp al, 32     ; Comprueba si hemos llegado al final de la cadena
+            jne CopiaFileName    ; Si no, repite el bucle
+        
         MOV match, 1
-        PrintCadena prc10
+        ; JMP OpenFilee
+        PrintCadena filename
+        JMP OpenFilee
+        
+        ;PrintCadena prc10
 
         ;PrintCadena bandera1
 
@@ -1290,6 +1304,17 @@ PedirComando MACRO buffer
     MOV comando[SI], '$'
 ENDM
 
+clearFile MACRO
+    LOCAL LIMPIAR
+    MOV SI, 3  ; Comenzamos desde el tercer carácter de la cadena comando
+    LIMPIAR:
+        MOV filename[SI], 32  ; Limpia con espacios en blanco
+        INC SI
+        CMP SI, 30
+        JNE LIMPIAR
+
+ENDM
+
 
 ; * CODIGO DE EJEMPLO PARA LA LECTURA DE UN CSV
 .MODEL small
@@ -1394,6 +1419,7 @@ ENDM
         PedirCadena filename
 
         ; * Extraer Informacion Del CSV
+    OpenFilee:
         OpenFile
         CMP warningOpen,1
         JE Open
@@ -1554,7 +1580,7 @@ ENDM
 
 
 
-        ; ; * Maximo
+        ; * Maximo
         ; Maximo
         ; MOV base, 10000
 
