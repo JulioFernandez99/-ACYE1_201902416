@@ -4,6 +4,138 @@ PrintCadena MACRO cadena
     INT 21h
 ENDM
 
+;--------------------Reportes-----------------------------
+CrearArchivo MACRO nombreArchivo, handler
+    LOCAL ManejarError, FinCrearArchivo
+    MOV AH, 3Ch ; Codigo interrupcion
+    MOV CX, 00h ; Atributo del archivo
+    LEA DX, nombreArchivo ; Nombre del archivo
+    INT 21h
+
+    MOV handler, AX ; capturar el handler asignado al archivo (16 bits)
+    RCL BL, 1
+    AND BL, 1
+    CMP BL, 1
+    JE ManejarError
+    JMP FinCrearArchivo
+
+    ManejarError:
+
+
+
+    FinCrearArchivo:
+ENDM
+
+AbrirArchivo MACRO nombreArchivo, handler
+    LOCAL ManejarError, FinAbrirArchivo
+    MOV BL, 0
+
+    MOV AH, 3Dh ; codigo de interrupcion
+    MOV AL, 00h ; modo de apertura del archivo, 0 -> Lectura | 1 -> Escritura | 2 -> Lectura/Escritura
+    LEA DX, nombreArchivo ; Nombre del archivo
+    INT 21h
+
+    MOV handler, AX ; Capturar el handler asignado al archivo (16 bits)
+    RCL BL, 1
+    CMP BL, 1
+    JE ManejarError
+    JMP FinAbrirArchivo
+
+    ManejarError:
+
+
+
+    FinAbrirArchivo:
+ENDM
+
+CerrarArchivo MACRO handler
+    LOCAL ManejarError, FinCerrarArchivo
+
+    MOV AH, 3Eh ; Codigo de interrupcion
+    MOV BX, handler ; handler del archivo
+    INT 21h
+
+    RCL BL, 1
+    AND BL, 1
+    CMP BL, 1
+    JE ManejarError
+    JMP FinCerrarArchivo
+
+    ManejarError:
+
+    FinCerrarArchivo:
+ENDM
+
+LeerArchivo MACRO buffer, handler
+    LOCAL ManejarError, FinLeerArchivo
+
+    MOV AH, 3Fh ; Codigo de interrupcion
+    MOV BX, handler ; handler del archivo
+    MOV CX, 300 ; Cantidad de bytes que se van a leer
+    LEA DX, buffer ; Posicion en memoria del buffer donde se almacenara el texto leido
+    INT 21h
+
+    MOV BL, 0
+    RCL BL, 1
+    CMP BL, 1
+    JE ManejarError
+    JMP FinLeerArchivo
+
+    ManejarError:
+
+
+    
+    FinLeerArchivo:
+ENDM
+
+EscribirArchivo MACRO cadena, handler;,tam
+    LOCAL ManejarError, FinEscribirArchivo
+
+    MOV AH, 40h ; Codigo de interrupcion
+    MOV BX, handler ; Handler de archivo
+    ;MOV CX, tam ; Cantidad de bytes que se van a escribir
+    LEA DX, cadena ; Direccion de la cadena a escribir
+    INT 21h
+
+    RCL BL, 1 ; Capturar el bit de CF en el registro BL
+    AND BL, 1 ; Validar que en BL quede un 1 o 0
+    CMP BL, 1 ; Verificar si no hay codigo de error
+    JE ManejarError
+    JMP FinEscribirArchivo
+
+    ManejarError:
+
+    
+    FinEscribirArchivo:
+ENDM
+
+PosicionarApuntador MACRO handler
+    MOV AH, 42h ; Codigo Interrupcion
+    MOV AL, 02h ; Modo de posicionamiento
+    MOV BX, handler ; handler archivo
+    MOV CX, 00h ; offset mas significativo
+    MOV DX, 00h ; offset menos significativo
+    INT 21h
+
+    ; Capturar Error
+ENDM
+
+CalcularLongitud MACRO cadena
+    LOCAL ciclo,salir_ciclo
+
+        MOV cx,0              ; Establece la cantidad de iteraciones
+        MOV si, OFFSET cadena   ; Carga la dirección base del array
+
+        ciclo:
+            CMP BYTE PTR [si], 36    ; Compara el valor del byte en la posición actual con 0
+            JE salir_ciclo                ; Salta a 'found' si se encuentra un 0
+            INC si                  ; Avanza al siguiente byte del array
+            INC cx                  ; Incrementa el contador de iteraciones
+            JMP ciclo               ; Salta a 'loop' para continuar el ciclo
+        
+        salir_ciclo:
+ENDM
+
 ;---------------------------------------------------------
 
 LimpiarConsola MACRO
@@ -57,6 +189,8 @@ prom MACRO cadena2
         ;PrintCadena prc1
         Promedio
         MOV base, 10000
+        PrintCadena msgPromedio
+        PrintCadena cadenaResult
 
         ;PrintCadena bandera1
 
@@ -98,6 +232,8 @@ medianaC MACRO cadena2
         ;PrintCadena prc2
         Mediana
         MOV base, 10000
+        PrintCadena msgMediana
+        PrintCadena cadenaResult
 
         ;PrintCadena bandera1
 
@@ -180,6 +316,8 @@ max MACRO cadena2
         ;PrintCadena prc4
         Maximo
         MOV base, 10000
+        PrintCadena msgMaximo
+        PrintCadena cadenaResult
 
         ;PrintCadena bandera1
 
@@ -221,6 +359,8 @@ min MACRO cadena2
         ;PrintCadena prc5
         Minimo
         MOV base, 10000
+        PrintCadena msgMinimo
+        PrintCadena cadenaResult
 
         ;PrintCadena bandera1
 
@@ -262,6 +402,8 @@ contador MACRO cadena2
         ;PrintCadena prc6
         ContadorDatos
         MOV base, 10000
+        PrintCadena msgContadorDatos
+        PrintCadena cadenaResult
 
         ;PrintCadena bandera1
 
@@ -482,7 +624,7 @@ limpiar MACRO cadena2
 ENDM
 
 reporte MACRO cadena2
-    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION
+    LOCAL COMPARAR_LOOP, NO_IGUALES, SON_IGUALES, FIN_COMPARACION,tabla, ExitPrintTabla
     mov si, offset comando + 2  ; Puntero a la primera cadena, comenzando desde el tercer byte
     mov di, offset cadena2       ; Puntero a la segunda cadena
 
@@ -514,6 +656,224 @@ reporte MACRO cadena2
         ; Por ejemplo, establecer una bandera de iguales y salir del bucle
         MOV match, 1
         PrintCadena prc12
+
+        CrearArchivo nombreArchivo, handlerArchivo
+
+        ;---------------Escribiendo la mediana----------------
+        PosicionarApuntador handlerArchivo
+        CalcularLongitud msgMediana
+        EscribirArchivo msgMediana, handlerArchivo
+
+        Mediana
+        MOV base, 10000
+        
+        CalcularLongitud cadenaResult
+        EscribirArchivo cadenaResult, handlerArchivo
+
+        ;---------------Escribiendo el promedio----------------
+        PosicionarApuntador cx
+        CalcularLongitud salto
+        EscribirArchivo salto, handlerArchivo
+
+        PosicionarApuntador cx
+        CalcularLongitud msgPromedio
+        EscribirArchivo msgPromedio, handlerArchivo
+
+        Promedio
+        MOV base, 10000
+        
+        CalcularLongitud cadenaResult
+        EscribirArchivo cadenaResult, handlerArchivo
+
+        ;---------------Escribiendo la moda----------------
+        PosicionarApuntador cx
+        CalcularLongitud salto
+        EscribirArchivo salto, handlerArchivo
+
+        PosicionarApuntador cx
+        CalcularLongitud msgModa1
+        EscribirArchivo msgModa1, handlerArchivo
+
+        Moda2
+        MOV base, 10000
+        
+        CalcularLongitud cadenaResult
+        EscribirArchivo cadenaResult, handlerArchivo
+
+        ;---------------Escribiendo el maximo----------------
+        PosicionarApuntador cx
+        CalcularLongitud salto
+        EscribirArchivo salto, handlerArchivo
+
+        PosicionarApuntador cx
+        CalcularLongitud msgMaximo
+        EscribirArchivo msgMaximo, handlerArchivo
+
+        Maximo
+        MOV base, 10000
+        
+        CalcularLongitud cadenaResult
+        EscribirArchivo cadenaResult, handlerArchivo
+
+        ;---------------Escribiendo el minimo----------------
+        PosicionarApuntador cx
+        CalcularLongitud salto
+        EscribirArchivo salto, handlerArchivo
+
+        PosicionarApuntador cx
+        CalcularLongitud msgMinimo
+        EscribirArchivo msgMinimo, handlerArchivo
+
+        Minimo
+        MOV base, 10000
+        
+        CalcularLongitud cadenaResult
+        EscribirArchivo cadenaResult, handlerArchivo
+
+        ;---------------Escribiendo el tabla----------------
+        PosicionarApuntador cx
+        CalcularLongitud salto
+        EscribirArchivo salto, handlerArchivo
+
+        PosicionarApuntador cx
+        CalcularLongitud msgTabalFrecuencias
+        EscribirArchivo msgTabalFrecuencias, handlerArchivo
+
+        BuildTablaFrecuencias
+        OrderFrecuencies
+        MOV base, 10000
+        
+        
+        ;---
+        PosicionarApuntador cx
+        CalcularLongitud salto
+        EscribirArchivo salto, handlerArchivo
+
+        PosicionarApuntador cx
+        CalcularLongitud msgEncabezadoTabla2
+        EscribirArchivo msgEncabezadoTabla2, handlerArchivo
+
+        PosicionarApuntador cx
+        CalcularLongitud salto
+        EscribirArchivo salto, handlerArchivo
+
+
+        XOR AX, AX
+        XOR BX, BX
+        MOV AL, numEntradas
+        MOV CX, AX
+        MOV BL, 2
+        MUL BL
+        MOV DI, AX
+        DEC DI
+
+        tabla:
+            PUSH CX
+            XOR AX, AX
+            XOR BX, BX
+
+            MOV AL, tablaFrecuencias[DI]
+            DEC DI
+            MOV BL, tablaFrecuencias[DI]  
+            DEC DI
+
+            PUSH AX
+            MOV entero, BX
+            MOV SI, 0
+            MOV base, 10000
+            CrearCadena entero, cadenaResult
+            MOV cadenaResult[SI], 36
+
+            PosicionarApuntador cx
+            CalcularLongitud espacios
+            EscribirArchivo espacios, handlerArchivo
+
+            PosicionarApuntador cx
+            CalcularLongitud cadenaResult
+            EscribirArchivo cadenaResult, handlerArchivo
+
+
+            POP AX
+            MOV entero, AX
+            
+            MOV SI, 0
+            MOV base, 10000
+            CrearCadena entero, cadenaResult
+            MOV cadenaResult[SI], 36
+
+            PosicionarApuntador cx
+            CalcularLongitud espacios
+            EscribirArchivo espacios, handlerArchivo
+
+            
+
+            ; MOV AH, 2
+            ; MOV DL, 124
+            ; INT 21h
+
+            PosicionarApuntador cx
+            CalcularLongitud espacios
+            EscribirArchivo espacios, handlerArchivo
+
+            PosicionarApuntador cx
+            CalcularLongitud cadenaResult
+            EscribirArchivo cadenaResult, handlerArchivo
+
+            PosicionarApuntador cx
+            CalcularLongitud salto
+            EscribirArchivo salto, handlerArchivo
+
+            
+
+            POP CX
+            DEC CX
+            CMP CX, 0
+            JE ExitPrintTabla
+            JMP tabla
+
+        ExitPrintTabla:
+        ;---
+        
+        ;---------------Escribiendo fecha----------------
+        PosicionarApuntador cx
+        CalcularLongitud salto
+        EscribirArchivo salto, handlerArchivo
+
+        PosicionarApuntador cx
+        CalcularLongitud fecha
+        EscribirArchivo fecha, handlerArchivo
+
+        ;---------------Escribiendo hora----------------
+        PosicionarApuntador cx
+        CalcularLongitud salto
+        EscribirArchivo salto, handlerArchivo
+
+        PosicionarApuntador cx
+        CalcularLongitud hora
+        EscribirArchivo hora, handlerArchivo
+
+        ;---------------Escribiendo carnet----------------
+        PosicionarApuntador cx
+        CalcularLongitud salto
+        EscribirArchivo salto, handlerArchivo
+
+        PosicionarApuntador cx
+        CalcularLongitud carnet
+        EscribirArchivo carnet, handlerArchivo
+
+        ;---------------Escribiendo nombre----------------
+        PosicionarApuntador cx
+        CalcularLongitud salto
+        EscribirArchivo salto, handlerArchivo
+
+        PosicionarApuntador cx
+        CalcularLongitud nombre
+        EscribirArchivo nombre, handlerArchivo
+
+       
+
+
+        CerrarArchivo handlerArchivo
 
         ;PrintCadena bandera1
 
@@ -894,9 +1254,6 @@ Promedio MACRO
 
     ContinuarProm:
         MOV cantDecimal, 0
-        PrintCadena salto
-        PrintCadena msgPromedio
-        PrintCadena cadenaResult
 ENDM
 
 CrearCadena MACRO valor, cadena
@@ -954,9 +1311,8 @@ Maximo MACRO
     INC SI
     MOV cadenaResult[SI], 36
 
-    PrintCadena salto
-    PrintCadena msgMaximo
-    PrintCadena cadenaResult
+    
+    
 ENDM
 
 Minimo MACRO
@@ -973,11 +1329,9 @@ Minimo MACRO
     MOV cadenaResult[SI], 48
     INC SI
     MOV cadenaResult[SI], 36
-
-    PrintCadena salto
-    PrintCadena msgMinimo
-    PrintCadena cadenaResult
+    
 ENDM
+
 
 Mediana MACRO
     LOCAL CalcPromedio, ExitCalcMediana, CicloDecimal
@@ -1058,10 +1412,6 @@ Mediana MACRO
 
     ExitCalcMediana:
         MOV cantDecimal, 0
-        PrintCadena salto
-        PrintCadena msgMediana
-        PrintCadena cadenaResult
-
 ENDM
 
 ContadorDatos MACRO
@@ -1074,9 +1424,8 @@ ContadorDatos MACRO
 
     MOV cadenaResult[SI], 36
 
-    PrintCadena salto
-    PrintCadena msgContadorDatos
-    PrintCadena cadenaResult
+
+    
 ENDM
 
 BuildTablaFrecuencias MACRO
@@ -1219,6 +1568,53 @@ Moda MACRO
     ExitCalcModa:
 ENDM
 
+Moda2 MACRO
+    LOCAL CicloModa, ExitCalcModa
+    XOR AX, AX
+    XOR BX, BX
+    MOV AL, numEntradas
+    MOV BL, 2
+    MUL BL
+    MOV DI, AX
+    DEC DI
+
+    CicloModa:
+        XOR AX, AX
+        XOR BX, BX
+
+        MOV AL, tablaFrecuencias[DI] ; ? Frecuencia
+        DEC DI
+        MOV BL, tablaFrecuencias[DI] ; ? Valor
+        DEC DI
+        
+        PUSH AX
+        MOV entero, BX
+        MOV SI, 0
+        MOV base, 10000
+        CrearCadena entero, cadenaResult
+        MOV cadenaResult[SI], 36
+
+        POP AX
+        MOV entero, AX
+        
+        PUSH AX
+        MOV SI, 0
+        MOV base, 10000
+
+        CrearCadena entero, cadenaResult
+        MOV cadenaResult[SI], 36
+
+
+        POP AX
+        
+        CMP AL, tablaFrecuencias[DI]
+        JA ExitCalcModa
+        JMP CicloModa
+
+    ExitCalcModa:
+ENDM
+
+
 PrintTablaFrecuencias MACRO
     LOCAL tabla, ExitPrintTabla
     PrintCadena salto
@@ -1339,7 +1735,9 @@ ENDM
     msgContadorDatos    db "El Total De Datos Utilizados Ha Sido De: ", "$"
     msgModa1            db "La Moda De Los Datos Es: ", "$"
     msgModa2            db "Con Una Frecuencia De: ", "$"
+    msgTabalFrecuencias db "Tabla de distribucion de frecuencias", "$"
     msgEncabezadoTabla  db "-> Valor    -> Frecuencia", "$"
+    msgEncabezadoTabla2  db "  Valor       Frecuencia", "$"
     salto               db 10, 13, "$"
     espacios            db 32, 32, 32, 32, 32, "$"
     numCSV              db 3 dup(?)
@@ -1354,6 +1752,22 @@ ENDM
     entero              dw ?
     decimal             dw ?
     cantDecimal         db 0
+
+    handlerArchivo dw ?
+    nombreArchivo db "ReporteF.txt", 00h
+    errorAbrirArchivo db "Ocurrio Un Error Al Abrir Archivo", "$"
+    errorCrearArchivo db "Ocurrio Un Error Al Crear Archivo", "$"
+    errorEscribirArchivo db "Ocurrio Un Error Al Escribir Archivo", "$"
+    errorLeerArchivo db "Ocurrio Un Error Al Cerrar Archivo", "$"
+    errorCerrarArchivo db "Ocurrio Un Error Al Cerrar Archivo", "$"
+    fecha              db "Fecha: 2024/07/01", "$"
+    hora               db "Hora: 12:00:00", "$"
+    carnet             db "Carnet: 201902416", "$"
+    nombre            db "Nombre: Julio Alfredo Fernandez Rodriguez", "$"
+    archivoSuccesful db "El Archivo Se Creo Correctamente", "$"
+    buffer db 300 dup("$")
+
+  
 
     encabezado db "ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1 A",10,13,"PRIMER SEMESTRE 2024",10,13,"Julio Alfredo Fernandez Rodriguez",10,13,"201902416",10,13,"Proyecto 2 Assembler",10,13,"$"
 
@@ -1406,6 +1820,8 @@ ENDM
 
     mensajeComando      db "Ingrese un comando:", "$"
     comando             db 10 dup(32) ,"$"
+
+    
 
 .CODE
     MOV AX, @data
